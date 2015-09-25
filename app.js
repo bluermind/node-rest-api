@@ -6,23 +6,29 @@ var router = require('./src/router')(server);
 var config = require('./src/config');
 
 router.get('/', function (req, res) {
+	var indexFileURL = path.join(__dirname, config.publicDir, 'index.html');
 	res.writeHead(200, {
 		"Content-Type": "text/html"
 	});
-	res.write(fs.readFileSync(path.join(__dirname, config.publicDir, 'index.html')));
-	res.end();
+	fs.readFile(indexFileURL, function (err, data) {
+		if (err) throw err;
+		res.end(data);
+	});
 });
 
 router.post('/', function (req, res) {
 	res.writeHead(200, {
 		"Content-Type": "text/html"
 	});
-	res.write('<h1>Great post!</h1>');
-	res.write('<h2>Your request\'s body:</h2>');
+	res.write('<p>Your request\'s body is:</p>');
 	res.write('<pre>');
-	res.write(req.body ? req.body : 'clean');
+	res.write(req.body ? req.body : 'Empty');
 	res.write('</pre>');
-	res.end();
+	res.write('<p>And the query is:</p>');
+	res.write('<pre>');
+	res.write(req.query ? JSON.stringify(req.query) : 'Empty');
+	res.write('</pre>');
+	res.end('<small>See you!</small>');
 });
 
 router.get('/super', function (req, res) {
@@ -30,5 +36,5 @@ router.get('/super', function (req, res) {
 		"Content-Type": "text/html"
 	});
 	res.write('<p>You did great super today!</p>');
-	res.end();
+	res.end('<small>See you!</small>');
 });

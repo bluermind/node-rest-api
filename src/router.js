@@ -12,7 +12,8 @@ var reqCallbacks = {};
 var Router = function (server) {
 	server.on('request', function (req, res) {
 		var method = req.method;
-		var path = url.parse(req.url).pathname;
+		var pathname = url.parse(req.url).pathname;
+		var query = url.parse(req.url, true).query;
 		var body = '';
 
 		req.on('data', function (data) {
@@ -20,17 +21,27 @@ var Router = function (server) {
 		});
 
 		req.on('end', function () {
-			var callback = reqCallbacks[method + ':' + path];
-			req.body = body ? body : null;
+			var callback = reqCallbacks[method + ':' + pathname];
+
+			if (method === 'POST' || method === 'PUT') {
+				if (Object.keys(query).length && body) {
+					req.query = query;
+					req.body = body;
+				} else if (!Object.keys(query).length && body) {
+					req.body = body;
+				} else if (Object.keys(query).length && !body) {
+					req.query = query;
+				}
+			}
 
 			if (callback) {
-				callback.apply({}, [req, res]);
+				callback.call({}, req, res);
 			} else if (reqCallbacks.default) {
-				reqCallbacks.default.apply({}, [req, res]);
+				reqCallbacks.default.call({}, req, res);
 			} else if (reqCallbacks.notFound) {
-				reqCallbacks.notFound.apply({}, [req, res]);
+				reqCallbacks.notFound.call({}, req, res);
 			} else {
-				callbackDefault.apply({}, [req, res]);
+				defaultNotFoundCallback.call({}, req, res);
 			}
 		});
 	});
@@ -41,7 +52,7 @@ var Router = function (server) {
 	 * @param req {IncomingMessage}
 	 * @param res {ServerResponse}
 	 */
-	function callbackDefault(req, res) {
+	function defaultNotFoundCallback(req, res) {
 		res.writeHead(404, {
 			"Content-type": "application/json"
 		});
