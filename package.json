@@ -1,0 +1,19 @@
+{
+  "name": "node-rest-api",
+  "version": "0.0.1",
+  "description": "Simple implementation of REST API server using vanilla Node.js",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devlysh/node-rest-api.git"
+  },
+  "author": "Artem Devlysh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devlysh/node-rest-api/issues"
+  },
+  "homepage": "https://github.com/devlysh/node-rest-api#readme",
+  "dependencies": {
+    "body-parser": "^1.14.0"
+  }
+}

@@ -1,5 +1,5 @@
 var url = require('url');
-
+var bodyParser = require('body-parser');
 var reqCallbacks = {};
 
 /**
@@ -12,8 +12,8 @@ var reqCallbacks = {};
 var Router = function (server) {
 	server.on('request', function (req, res) {
 		var method = req.method;
-		var pathname = url.parse(req.url).pathname;
-		var query = url.parse(req.url, true).query;
+		var urlParsed = url.parse(req.url);
+		var query = urlParsed.query;
 		var body = '';
 
 		req.on('data', function (data) {
@@ -21,16 +21,15 @@ var Router = function (server) {
 		});
 
 		req.on('end', function () {
-			var callback = reqCallbacks[method + ':' + pathname];
+			var callback = reqCallbacks[method + ':' + urlParsed.pathname];
 
 			if (method === 'POST' || method === 'PUT') {
-				if (Object.keys(query).length && body) {
+				if (query && body) {
 					req.query = query;
 					req.body = body;
-				} else if (!Object.keys(query).length && body) {
+				} else if (body) {
+					// TODO: Rewrite this logic using body-parser
 					req.body = body;
-				} else if (Object.keys(query).length && !body) {
-					req.query = query;
 				}
 			}
 
